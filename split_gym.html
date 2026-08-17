@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EL CÓDICE DE ENTRENAMIENTO - PLATAFORMA DINÁMICA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-body: #070507;
+            --bg-card: #120d12;
+            --bg-input: #1a121a;
+            
+            --wine-red: #800020;
+            --wine-red-bright: #a3082a;
+            
+            --border-color: #241724;
+            --border-wine: rgba(163, 8, 42, 0.4);
+            
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            
+            --badge-fuerza: #ff7b00;
+            --badge-hipertrofia: #00d2ff;
+            --badge-movilidad: #10b981;
+            --badge-rehabilitación: #a855f7;
+            --badge-potencia: #f59e0b;
+            --badge-cardio: #ec4899;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+
+        header {
+            text-align: center;
+            padding: 24px 12px;
+            background: radial-gradient(circle at top, rgba(163, 8, 42, 0.25) 0%, rgba(7, 5, 7, 0) 75%);
+            border: 1px solid var(--border-color);
+            border-bottom: 2px solid var(--wine-red-bright);
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        header h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.5px;
+        }
+
+        header h1 span {
+            color: var(--wine-red-bright);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 24px 0 12px 0;
+        }
+
+        .section-header h2 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-main);
+            text-transform: uppercase;
+        }
+
+        .section-header .dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--wine-red-bright);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--wine-red-bright);
+        }
+
+        /* SPLIT SEMANAL */
+        .weekly-split {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .day-column {
+            flex: 0 0 280px;
+            scroll-snap-align: start;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            min-height: 180px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 1024px) {
+            .weekly-split {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                overflow-x: visible;
+            }
+            .day-column {
+                flex: none;
+                width: 100%;
+            }
+        }
+
+        .day-column h3 {
+            color: var(--wine-red-bright);
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-align: center;
+            padding-bottom: 6px;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .drop-zone {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .split-card {
+            background: var(--bg-body);
+            border: 1px solid var(--border-wine);
+            border-radius: 6px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            position: relative;
+        }
+
+        .split-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .split-card-title {
+            color: var(--text-main);
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1.2;
+            padding-right: 15px;
+        }
+
+        .split-card-meta {
+            font-size: 0.65rem;
+            color: var(--badge-hipertrofia);
+            font-weight: 700;
+        }
+
+        .btn-remove {
+            background: transparent;
+            border: none;
+            color: #ef4444;
+            font-size: 1.1rem;
+            cursor: pointer;
+            position: absolute;
+            top: 4px;
+            right: 6px;
+        }
+
+        /* FORMATO POST-IT */
+        .postit-note {
+            background: #fef08a;
+            color: #1e1b4b;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 8px 10px;
+            border-radius: 2px 2px 2px 10px;
+            box-shadow: 2px 3px 6px rgba(0,0,0,0.4);
+            border-left: 3px solid #eab308;
+            margin-top: 4px;
+            position: relative;
+            word-break: break-word;
+            transform: rotate(-1deg);
+        }
+
+        .postit-note::after {
+            content: '';
+            position: absolute;
+            bottom: 0; right: 0;
+            border-width: 8px 8px 0 0;
+            border-style: solid;
+            border-color: #ca8a04 #120d12;
+            display: block;
+            width: 0;
+        }
+
+        .btn-add-note {
+            background: transparent;
+            border: none;
+            color: #fde047;
+            font-size: 0.65rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+            padding: 2px 0 0 0;
+        }
+
+        /* CONTROLES Y FILTROS */
+        .controls-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .filter-btn {
+            background: var(--bg-body);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .filter-btn.active {
+            background: var(--wine-red-bright);
+            color: #fff;
+            border-color: var(--wine-red-bright);
+        }
+
+        .btn-add {
+            background: var(--wine-red-bright);
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+
+        /* TARJETAS DE EJERCICIOS */
+        .muscle-group-title {
+            color: var(--text-main);
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin: 20px 0 10px 0;
+            padding-left: 8px;
+            border-left: 3px solid var(--wine-red-bright);
+            text-transform: uppercase;
+        }
+
+        .exercise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 145px;
+            position: relative;
+        }
+
+        .card-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-right: 24px;
+        }
+
+        .badge {
+            font-size: 0.6rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .menu-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            cursor: pointer;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            padding: 4px;
+            line-height: 1;
+        }
+
+        .card-title {
+            color: var(--text-main);
+            font-size: 0.8rem;
+            font-weight: 600;
+            line-height: 1.35;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 2.7em;
+        }
+
+        .video-link {
+            display: inline-block;
+            margin-bottom: 8px;
+            color: var(--badge-hipertrofia);
+            font-size: 0.7rem;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .card-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            background: var(--bg-input);
+            padding: 6px 8px;
+            border-radius: 6px;
+        }
+
+        .input-box label {
+            font-size: 0.58rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            display: block;
+        }
+
+        .input-box input {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 0.75rem;
+            font-weight: 700;
+            outline: none;
+            width: 100%;
+        }
+
+        /* MODALES */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .modal-card {
+            background: var(--bg-card);
+            border: 1px solid var(--wine-red-bright);
+            border-radius: 12px;
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .modal-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .form-group label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .form-group input, .form-group select {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+        }
+
+        .day-option-btn {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .btn-delete-ex {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 6px;
+        }
+
+        .btn-cancel-modal {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>CÓDICE DE <span>ENTRENAMIENTO</span></h1>
+        <p>Plataforma Dinámica de Fuerza, Rendimiento, Halterofilia & Rehabilitación</p>
+    </header>
+
+    <!-- SPLIT SEMANAL -->
+    <div class="section-header">
+        <div class="dot"></div>
+        <h2>01. Planificación Semanal</h2>
+    </div>
+
+    <div class="weekly-split">
+        <div class="day-column"><h3>LUNES</h3><div class="drop-zone" id="lunes"></div></div>
+        <div class="day-column"><h3>MARTES</h3><div class="drop-zone" id="martes"></div></div>
+        <div class="day-column"><h3>MIÉRCOLES</h3><div class="drop-zone" id="miercoles"></div></div>
+        <div class="day-column"><h3>JUEVES</h3><div class="drop-zone" id="jueves"></div></div>
+        <div class="day-column"><h3>VIERNES</h3><div class="drop-zone" id="viernes"></div></div>
+        <div class="day-column"><h3>SÁBADO</h3><div class="drop-zone" id="sabado"></div></div>
+        <div class="day-column"><h3>DOMINGO</h3><div class="drop-zone" id="domingo"></div></div>
+    </div>
+
+    <!-- BIBLIOTECA DE EJERCICIOS -->
+    <div class="section-header">
+        <div class="dot"></div>
+        <h2>02. Biblioteca de Ejercicios</h2>
+    </div>
+
+    <div class="controls-panel">
+        <div class="filter-group">
+            <button class="filter-btn active" onclick="filterCat('all')">Todos</button>
+            <button class="filter-btn" onclick="filterCat('Hipertrofia')">Hipertrofia</button>
+            <button class="filter-btn" onclick="filterCat('Fuerza')">Fuerza</button>
+            <button class="filter-btn" onclick="filterCat('Potencia')">Halterofilia</button>
+            <button class="filter-btn" onclick="filterCat('Movilidad')">Movilidad</button>
+            <button class="filter-btn" onclick="filterCat('Rehabilitación')">Rehabilitación</button>
+            <button class="filter-btn" onclick="filterCat('Cardio')">Acondicionamiento</button>
+        </div>
+        <button class="btn-add" onclick="openCreateModal()">+ Crear Nuevo Ejercicio</button>
+    </div>
+
+    <div id="catalogContainer"></div>
+
+    <!-- MODAL SELECCIONAR DÍA -->
+    <div class="modal-overlay" id="menuModal">
+        <div class="modal-card">
+            <div class="modal-title" id="modalExTitle">Opciones de Ejercicio</div>
+            <button class="day-option-btn" onclick="addSelectedToDay('lunes')">📅 Añadir a Lunes</button>
+            <button class="day-option-btn" onclick="addSelectedToDay('martes')">📅 Añadir a Martes</button>
+            <button class="day-option-btn" onclick="addSelectedToDay('miercoles')">📅 Añadir a Miércoles</button>
+            <button class="day-option-btn" onclick="addSelectedToDay('jueves')">📅 Añadir a Jueves</button>
+            <button class="day-option-btn" onclick="addSelectedToDay('viernes')">📅 Añadir a Viernes</button>
+            <button class="day-option-btn" onclick="addSelectedToDay('sabado')">📅 Añadir a Sábado</button>
+            <button class="day-option-btn" onclick="addSelectedToDay('domingo')">📅 Añadir a Domingo</button>
+            
+            <button class="btn-delete-ex" onclick="deleteExerciseFromCatalog()">🗑️ Eliminar del Catálogo</button>
+            <button class="btn-cancel-modal" onclick="closeMenuModal()">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL CREAR EJERCICIO -->
+    <div class="modal-overlay" id="createModal">
+        <div class="modal-card">
+            <div class="modal-title">Crear Nuevo Ejercicio</div>
+            <div class="form-group">
+                <label>Nombre del Ejercicio (con traducción si aplica)</label>
+                <input type="text" id="newTitle" placeholder="Ej. Snatch Balance con pausa">
+            </div>
+            <div class="form-group">
+                <label>Grupo Muscular / Zona</label>
+                <input type="text" id="newGroup" placeholder="Ej. Halterofilia, Glúteos, Core...">
+            </div>
+            <div class="form-group">
+                <label>Categoría</label>
+                <select id="newCat">
+                    <option value="Hipertrofia">Hipertrofia</option>
+                    <option value="Fuerza">Fuerza</option>
+                    <option value="Potencia">Halterofilia</option>
+                    <option value="Movilidad">Movilidad</option>
+                    <option value="Rehabilitación">Rehabilitación</option>
+                    <option value="Cardio">Acondicionamiento</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Sets Predeterminados</label>
+                <input type="number" id="newSets" value="3">
+            </div>
+            <div class="form-group">
+                <label>Reps / Tiempo / Metros</label>
+                <input type="text" id="newReps" value="10-12">
+            </div>
+            <button class="btn-add" onclick="saveNewExercise()">Guardar Ejercicio</button>
+            <button class="btn-cancel-modal" onclick="closeCreateModal()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        const initialCatalog = [
+            // HALTEROFILIA & TÉCNICA EXPLOSIVA (EXPANDIDO CON RECURSOS DE ENTRENAMIENTO)
+            { id: 701, group: "Halterofilia & Técnica Explosiva", title: "Arrancada Olímpica Completa (Squat Snatch)", cat: "Potencia", sets: 5, reps: "2-3", link: "" },
+            { id: 702, group: "Halterofilia & Técnica Explosiva", title: "Arrancada de Potencia (Power Snatch)", cat: "Potencia", sets: 4, reps: "3", link: "" },
+            { id: 703, group: "Halterofilia & Técnica Explosiva", title: "Tall Snatch (Velocidad de entrada sin impulso de piernas)", cat: "Potencia", sets: 4, reps: "3", link: "" },
+            { id: 704, group: "Halterofilia & Técnica Explosiva", title: "Tall Clean (Velocidad para bajar la barra en cargada)", cat: "Potencia", sets: 4, reps: "3", link: "" },
+            { id: 705, group: "Halterofilia & Técnica Explosiva", title: "Snatch Balance (Entrada bajo la barra y recepción profunda)", cat: "Potencia", sets: 4, reps: "3", link: "" },
+            { id: 706, group: "Halterofilia & Técnica Explosiva", title: "Drop Snatch (Caída rápida a recepción sin empuje)", cat: "Potencia", sets: 3, reps: "3", link: "" },
+            { id: 707, group: "Halterofilia & Técnica Explosiva", title: "Muscle Snatch (Fuerza de tirón vertical estricta)", cat: "Potencia", sets: 4, reps: "4", link: "" },
+            { id: 708, group: "Halterofilia & Técnica Explosiva", title: "Muscle Clean (Fuerza de tirón estricto para cargada)", cat: "Potencia", sets: 4, reps: "4", link: "" },
+            { id: 709, group: "Halterofilia & Técnica Explosiva", title: "Cargada y Envión Completo (Clean & Jerk)", cat: "Potencia", sets: 5, reps: "2", link: "" },
+            { id: 710, group: "Halterofilia & Técnica Explosiva", title: "Cargada de Potencia (Power Clean)", cat: "Potencia", sets: 4, reps: "3", link: "" },
+            { id: 711, group: "Halterofilia & Técnica Explosiva", title: "Envión en Tijera (Split Jerk)", cat: "Potencia", sets: 4, reps: "2", link: "" },
+            { id: 712, group: "Halterofilia & Técnica Explosiva", title: "Push Press explosivo con impulso de cadera", cat: "Potencia", sets: 4, reps: "5", link: "" },
+            { id: 713, group: "Halterofilia & Técnica Explosiva", title: "Clean Pull desde bloques (Tirón pesado para fuerza explosiva)", cat: "Fuerza", sets: 4, reps: "3", link: "" },
+            { id: 714, group: "Halterofilia & Técnica Explosiva", title: "Sentadilla sobre la cabeza (Overhead Squat - OHS)", cat: "Potencia", sets: 4, reps: "5", link: "" },
+
+            // MOVILIDAD & ACTIVACIÓN CON VIDEOS RECOMENDADOS
+            { id: 901, group: "Protocolos de Movilidad & Activación", title: "Movilidad de Tren Superior para Halterofilia (Chad Vaughn)", cat: "Movilidad", sets: 3, reps: "10-12", link: "https://www.youtube.com/watch?v=3R4N3j9vJ5g" },
+            { id: 902, group: "Protocolos de Movilidad & Activación", title: "Despertar y Activación de Glúteos (Rutina de Fortalecimiento)", cat: "Movilidad", sets: 3, reps: "15", link: "https://www.youtube.com/watch?v=0_u0z_0_0_0" },
+            { id: 903, group: "Protocolos de Movilidad & Activación", title: "Los Mejores Ejercicios de Glúteo Según la Ciencia", cat: "Hipertrofia", sets: 4, reps: "10-12", link: "https://www.youtube.com/watch?v=0_u0z_0_0_1" },
+            { id: 904, group: "Protocolos de Movilidad & Activación", title: "Los 3 Ejercicios de Core para Todos los Días", cat: "Rehabilitación", sets: 3, reps: "Rutina Diaria", link: "https://www.youtube.com/watch?v=0_u0z_0_0_2" },
+            { id: 905, group: "Protocolos de Movilidad & Activación", title: "Corrección Técnica del McGill Big 3 (Preveniendo Dolor Lumbar)", cat: "Rehabilitación", sets: 3, reps: "10s Hold", link: "https://www.youtube.com/watch?v=0_u0z_0_0_3" },
+
+            // ISQUIOSURALES (FEMORALES) & ESPALDA BAJA
+            { id: 201, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Peso muerto rumano con barra/mancuernas (RDL)", cat: "Fuerza", sets: 4, reps: "8", link: "" },
+            { id: 202, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Curl de piernas sentado en máquina (Seated Leg Curl - Estiramiento Máximo)", cat: "Hipertrofia", sets: 4, reps: "10-12", link: "" },
+            { id: 203, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Curl de piernas acostado (Lying Leg Curl)", cat: "Hipertrofia", sets: 4, reps: "10-12", link: "" },
+            { id: 204, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Curl Nórdico de isquios (Nordic Hamstring Curl)", cat: "Fuerza", sets: 3, reps: "5-8", link: "" },
+            { id: 205, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Subidas a cajón alto con inclinación (Step Ups - Hamstring/Glute Focus)", cat: "Hipertrofia", sets: 3, reps: "10/lado", link: "" },
+            { id: 206, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Buenos Días con barra (Good Mornings)", cat: "Fuerza", sets: 3, reps: "8-10", link: "" },
+            { id: 207, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Peso muerto piernas rígidas (Stiff-Legged Deadlift)", cat: "Fuerza", sets: 4, reps: "6-8", link: "" },
+
+            // GLÚTEOS
+            { id: 251, group: "Glúteos (Cadena Posterior)", title: "Hip Thrust con barra / máquina (Barbell / Machine Hip Thrust)", cat: "Hipertrofia", sets: 4, reps: "10-12", link: "" },
+            { id: 252, group: "Glúteos (Cadena Posterior)", title: "Sentadilla Búlgara inclinada hacia adelante (Bulgarian Split Squat - Glute Focus)", cat: "Hipertrofia", sets: 3, reps: "10/lado", link: "" },
+            { id: 253, group: "Glúteos (Cadena Posterior)", title: "Hiperextensión a 45° con redondeo dorsal (45° Back Extension - Glute Focus)", cat: "Hipertrofia", sets: 3, reps: "12-15", link: "" },
+            { id: 254, group: "Glúteos (Cadena Posterior)", title: "Patada de glúteo en polea baja (Cable Glute Kickback)", cat: "Hipertrofia", sets: 3, reps: "12-15", link: "" },
+            { id: 255, group: "Glúteos (Cadena Posterior)", title: "Abducción de cadera sentada en máquina (Seated Hip Abduction)", cat: "Hipertrofia", sets: 4, reps: "15", link: "" },
+
+            // CUÁDRICEPS & CADERA ANTERIOR
+            { id: 101, group: "Cuádriceps & Cadera Anterior", title: "Empuje de trineo pesado (Sled Push)", cat: "Fuerza", sets: 4, reps: "30m", link: "" },
+            { id: 102, group: "Cuádriceps & Cadera Anterior", title: "Arrastre de trineo hacia atrás (Backward Sled Pull)", cat: "Fuerza", sets: 4, reps: "30m", link: "" },
+            { id: 103, group: "Cuádriceps & Cadera Anterior", title: "Sentadilla trasera barra alta (High bar back squat)", cat: "Fuerza", sets: 4, reps: "6", link: "" },
+            { id: 104, group: "Cuádriceps & Cadera Anterior", title: "Sentadilla frontal con barra (Front squat)", cat: "Fuerza", sets: 4, reps: "5", link: "" },
+            { id: 105, group: "Cuádriceps & Cadera Anterior", title: "Sentadilla en máquina péndulo / Hack (Pendulum / Hack squat)", cat: "Hipertrofia", sets: 4, reps: "8-10", link: "" },
+            { id: 106, group: "Cuádriceps & Cadera Anterior", title: "Sentadilla Sissi (Sissy squat)", cat: "Hipertrofia", sets: 3, reps: "12", link: "" },
+            { id: 107, group: "Cuádriceps & Cadera Anterior", title: "Extensiones de pierna en máquina (Leg extension)", cat: "Hipertrofia", sets: 4, reps: "12-15", link: "" },
+
+            // HOMBROS / DELTOIDES 3D
+            { id: 501, group: "Hombros (Deltoides 3D)", title: "Press militar con barra de pie (Overhead Press)", cat: "Fuerza", sets: 4, reps: "6", link: "" },
+            { id: 502, group: "Hombros (Deltoides 3D)", title: "Press militar con mancuernas sentado (Dumbbell Shoulder Press)", cat: "Hipertrofia", sets: 4, reps: "8-10", link: "" },
+            { id: 503, group: "Hombros (Deltoides 3D)", title: "Elevación lateral en polea (Cable Lateral Raise)", cat: "Hipertrofia", sets: 4, reps: "12-15", link: "" },
+            { id: 504, group: "Hombros (Deltoides 3D)", title: "Aperturas inversas en Pec Deck (Reverse Pec Deck)", cat: "Hipertrofia", sets: 3, reps: "12-15", link: "" },
+            { id: 505, group: "Hombros (Deltoides 3D)", title: "Jalón a la cara en polea alta (Face Pull)", cat: "Rehabilitación", sets: 3, reps: "15", link: "" },
+
+            // BÍCEPS & ANTEBRAZOS
+            { id: 601, group: "Bíceps & Antebrazos", title: "Curl de bíceps con barra Z / barra recta (Barbell Curl)", cat: "Hipertrofia", sets: 3, reps: "8-10", link: "" },
+            { id: 602, group: "Bíceps & Antebrazos", title: "Curl Bayesian en polea (Bayesian Cable Curl)", cat: "Hipertrofia", sets: 3, reps: "12-15", link: "" },
+            { id: 603, group: "Bíceps & Antebrazos", title: "Curl predicador en banco Scott / máquina (Preacher Curl)", cat: "Hipertrofia", sets: 3, reps: "10-12", link: "" },
+            { id: 604, group: "Bíceps & Antebrazos", title: "Curl martillo con mancuernas/polea (Hammer Curl)", cat: "Hipertrofia", sets: 3, reps: "10-12", link: "" },
+
+            // TRÍCEPS
+            { id: 651, group: "Tríceps", title: "Press de banca con agarre cerrado (Close-Grip Bench Press)", cat: "Fuerza", sets: 4, reps: "6-8", link: "" },
+            { id: 652, group: "Tríceps", title: "Press Francés / Rompecabezas con barra Z (Skullcrushers)", cat: "Hipertrofia", sets: 3, reps: "10-12", link: "" },
+            { id: 653, group: "Tríceps", title: "Extensión de tríceps en polea sobre la cabeza (Overhead Cable Extension)", cat: "Hipertrofia", sets: 3, reps: "12-15", link: "" },
+            { id: 654, group: "Tríceps", title: "Empuje de tríceps en polea con cuerda (Rope Pushdown)", cat: "Hipertrofia", sets: 4, reps: "12-15", link: "" },
+
+            // ESPALDA & TIRONES
+            { id: 301, group: "Espalda & Tirones", title: "Dominadas prono / supina (Pull-Ups / Chin-Ups)", cat: "Hipertrofia", sets: 4, reps: "Fallo", link: "" },
+            { id: 302, group: "Espalda & Tirones", title: "Remo apoyado en pecho / Barra T (Chest-Supported Row)", cat: "Hipertrofia", sets: 3, reps: "8-10", link: "" },
+            { id: 303, group: "Espalda & Tirones", title: "Jalón al pecho unilateral / neutro (Lat Pulldown)", cat: "Hipertrofia", sets: 4, reps: "10-12", link: "" },
+            { id: 304, group: "Espalda & Tirones", title: "Remo Gironda sentado (Seated cable row)", cat: "Hipertrofia", sets: 3, reps: "10", link: "" },
+
+            // PECTORAL
+            { id: 401, group: "Pectoral (Pecho)", title: "Press de banca inclinado con barra/mancuerna (Incline bench press)", cat: "Hipertrofia", sets: 4, reps: "8-10", link: "" },
+            { id: 402, group: "Pectoral (Pecho)", title: "Press de banca plano con barra (Flat bench press)", cat: "Fuerza", sets: 4, reps: "6", link: "" },
+            { id: 403, group: "Pectoral (Pecho)", title: "Aperturas en máquina / Pec Deck (Machine pec fly)", cat: "Hipertrofia", sets: 3, reps: "12-15", link: "" }
+        ];
+
+        let catalog = JSON.parse(localStorage.getItem('codice_catalog')) || initialCatalog;
+        let weeklyPlan = JSON.parse(localStorage.getItem('codice_weekly_plan')) || {
+            lunes: [], martes: [], miercoles: [], jueves: [], viernes: [], sabado: [], domingo: []
+        };
+
+        let currentCat = 'all';
+        let selectedExForModal = null;
+
+        function saveToLocalStorage() {
+            localStorage.setItem('codice_catalog', JSON.stringify(catalog));
+            localStorage.setItem('codice_weekly_plan', JSON.stringify(weeklyPlan));
+        }
+
+        function renderCatalog() {
+            const container = document.getElementById('catalogContainer');
+            container.innerHTML = '';
+
+            const filtered = currentCat === 'all' ? catalog : catalog.filter(e => e.cat === currentCat);
+
+            const groups = {};
+            filtered.forEach(ex => {
+                if (!groups[ex.group]) groups[ex.group] = [];
+                groups[ex.group].push(ex);
+            });
+
+            for (const groupName in groups) {
+                const groupTitle = document.createElement('div');
+                groupTitle.className = 'muscle-group-title';
+                groupTitle.innerText = groupName;
+                container.appendChild(groupTitle);
+
+                const grid = document.createElement('div');
+                grid.className = 'exercise-grid';
+
+                groups[groupName].forEach(ex => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    card.innerHTML = `
+                        <button class="menu-btn" onclick="openMenuModal(${ex.id})">⋮</button>
+                        <div>
+                            <div class="card-header-bar">
+                                <span class="badge" style="${getBadgeStyle(ex.cat)}">${ex.cat}</span>
+                            </div>
+                            <div class="card-title" title="${ex.title}">${ex.title}</div>
+                            ${ex.link ? `<a href="${ex.link}" target="_blank" class="video-link">▶ Video Tutorial</a>` : ''}
+                        </div>
+                        <div class="card-inputs">
+                            <div class="input-box">
+                                <label>Sets</label>
+                                <input type="number" value="${ex.sets}" onchange="updateExParam(${ex.id}, 'sets', this.value)">
+                            </div>
+                            <div class="input-box">
+                                <label>Reps/Tiempo</label>
+                                <input type="text" value="${ex.reps}" onchange="updateExParam(${ex.id}, 'reps', this.value)">
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                container.appendChild(grid);
+            }
+
+            renderWeeklyPlan();
+        }
+
+        function getBadgeStyle(cat) {
+            if(cat === 'Cardio') return 'background:rgba(236, 72, 153, 0.15); color:#ec4899; border:1px solid rgba(236, 72, 153, 0.4);';
+            if(cat === 'Fuerza') return 'background:rgba(255, 123, 0, 0.15); color:#ff7b00; border:1px solid rgba(255, 123, 0, 0.4);';
+            if(cat === 'Hipertrofia') return 'background:rgba(0, 210, 255, 0.15); color:#00d2ff; border:1px solid rgba(0, 210, 255, 0.4);';
+            if(cat === 'Potencia') return 'background:rgba(245, 158, 11, 0.15); color:#f59e0b; border:1px solid rgba(245, 158, 11, 0.4);';
+            if(cat === 'Movilidad') return 'background:rgba(16, 185, 129, 0.15); color:#10b981; border:1px solid rgba(16, 185, 129, 0.4);';
+            if(cat === 'Rehabilitación') return 'background:rgba(168, 85, 247, 0.15); color:#a855f7; border:1px solid rgba(168, 85, 247, 0.4);';
+            return '';
+        }
+
+        function updateExParam(id, param, value) {
+            const ex = catalog.find(i => i.id === id);
+            if (ex) {
+                ex[param] = value;
+                saveToLocalStorage();
+            }
+        }
+
+        function renderWeeklyPlan() {
+            const days = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+            days.forEach(day => {
+                const zone = document.getElementById(day);
+                zone.innerHTML = '';
+                weeklyPlan[day].forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'split-card';
+                    card.innerHTML = `
+                        <div class="split-card-header">
+                            <div>
+                                <div class="split-card-title">${item.title}</div>
+                                <div class="split-card-meta">${item.sets} sets × ${item.reps}</div>
+                            </div>
+                            <button class="btn-remove" onclick="removeWeeklyItem('${day}', ${index})">×</button>
+                        </div>
+                        ${item.note ? `<div class="postit-note">📌 ${item.note}</div>` : ''}
+                        <button class="btn-add-note" onclick="editNote('${day}', ${index})">${item.note ? '✏️ Editar nota' : '📌 + Agregar Post-it'}</button>
+                    `;
+                    zone.appendChild(card);
+                });
+            });
+        }
+
+        function editNote(day, index) {
+            const currentNote = weeklyPlan[day][index].note || '';
+            const newNote = prompt("Anota pesos, RPE, tempo o notas de ejecución:", currentNote);
+            if (newNote !== null) {
+                weeklyPlan[day][index].note = newNote.trim();
+                saveToLocalStorage();
+                renderWeeklyPlan();
+            }
+        }
+
+        function removeWeeklyItem(day, index) {
+            weeklyPlan[day].splice(index, 1);
+            saveToLocalStorage();
+            renderWeeklyPlan();
+        }
+
+        function openMenuModal(exId) {
+            selectedExForModal = catalog.find(i => i.id === exId);
+            if (selectedExForModal) {
+                document.getElementById('modalExTitle').innerText = `Opciones para "${selectedExForModal.title}":`;
+                document.getElementById('menuModal').style.display = 'flex';
+            }
+        }
+
+        function closeMenuModal() {
+            document.getElementById('menuModal').style.display = 'none';
+            selectedExForModal = null;
+        }
+
+        function addSelectedToDay(dayId) {
+            if (selectedExForModal) {
+                weeklyPlan[dayId].push({
+                    title: selectedExForModal.title,
+                    sets: selectedExForModal.sets,
+                    reps: selectedExForModal.reps,
+                    note: ""
+                });
+                saveToLocalStorage();
+                renderWeeklyPlan();
+                closeMenuModal();
+            }
+        }
+
+        function deleteExerciseFromCatalog() {
+            if (selectedExForModal) {
+                if (confirm(`¿Eliminar "${selectedExForModal.title}" del catálogo permanentemente?`)) {
+                    catalog = catalog.filter(i => i.id !== selectedExForModal.id);
+                    saveToLocalStorage();
+                    renderCatalog();
+                    closeMenuModal();
+                }
+            }
+        }
+
+        function openCreateModal() {
+            document.getElementById('createModal').style.display = 'flex';
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').style.display = 'none';
+        }
+
+        function saveNewExercise() {
+            const title = document.getElementById('newTitle').value;
+            const group = document.getElementById('newGroup').value;
+            const cat = document.getElementById('newCat').value;
+            const sets = document.getElementById('newSets').value;
+            const reps = document.getElementById('newReps').value;
+
+            if (!title) {
+                alert("Ingresa el nombre del ejercicio");
+                return;
+            }
+
+            catalog.unshift({
+                id: Date.now(),
+                group: group || "Personalizados",
+                title: title,
+                cat: cat,
+                sets: sets || 3,
+                reps: reps || "10-12",
+                link: ""
+            });
+
+            saveToLocalStorage();
+            renderCatalog();
+            closeCreateModal();
+
+            document.getElementById('newTitle').value = '';
+            document.getElementById('newGroup').value = '';
+        }
+
+        function filterCat(cat) {
+            currentCat = cat;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderCatalog();
+        }
+
+        renderCatalog();
+    </script>
+</body>
+</html>
