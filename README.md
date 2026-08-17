@@ -1,2 +1,2 @@
-# c-dice_entrenamiento
+# codice_entrenamiento
 mi horario semanal de entrenamiento dinámico digital
