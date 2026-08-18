@@ -545,4 +545,363 @@
 
             <div class="form-group">
                 <label>Categoría</label>
-                <select id="new
+                <select id="newCat">
+                    <option value="Hipertrofia">Hipertrofia</option>
+                    <option value="Fuerza">Fuerza</option>
+                    <option value="Potencia">Halterofilia</option>
+                    <option value="Movilidad">Movilidad</option>
+                    <option value="Rehabilitación">Rehabilitación</option>
+                    <option value="Cardio">Acondicionamiento</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Sets Predeterminados</label>
+                <input type="number" id="newSets" value="3">
+            </div>
+            <div class="form-group">
+                <label>Reps / Tiempo / Metros</label>
+                <input type="text" id="newReps" value="10-12">
+            </div>
+            <button class="btn-add" onclick="saveNewExercise()">Guardar Ejercicio</button>
+            <button class="btn-cancel-modal" onclick="closeCreateModal()">Cancelar</button>
+        </div>
+    </div>
+
+    <script>
+        const initialCatalog = [
+            // HALTEROFILIA & TÉCNICA EXPLOSIVA
+            { id: 701, group: "Halterofilia & Técnica Explosiva", title: "Arrancada Olímpica Completa (Squat Snatch)", cat: "Potencia", sets: 5, reps: "2-3", link: "" },
+            { id: 702, group: "Halterofilia & Técnica Explosiva", title: "Arrancada de Potencia (Power Snatch)", cat: "Potencia", sets: 4, reps: "3", link: "" },
+            { id: 703, group: "Halterofilia & Técnica Explosiva", title: "Tall Snatch (Velocidad de entrada sin impulso de piernas)", cat: "Potencia", sets: 4, reps: "3", link: "" },
+            { id: 704, group: "Halterofilia & Técnica Explosiva", title: "Tall Clean (Velocidad para bajar la barra en cargada)", cat: "Potencia", sets: 4, reps: "3", link: "" },
+            { id: 705, group: "Halterofilia & Técnica Explosiva", title: "Snatch Balance (Entrada bajo la barra y recepción profunda)", cat: "Potencia", sets: 4, reps: "3", link: "" },
+            { id: 706, group: "Halterofilia & Técnica Explosiva", title: "Drop Snatch (Caída rápida a recepción sin empuje)", cat: "Potencia", sets: 3, reps: "3", link: "" },
+            { id: 707, group: "Halterofilia & Técnica Explosiva", title: "Muscle Snatch (Fuerza de tirón vertical estricta)", cat: "Potencia", sets: 4, reps: "4", link: "" },
+            { id: 708, group: "Halterofilia & Técnica Explosiva", title: "Muscle Clean (Fuerza de tirón estricto para cargada)", cat: "Potencia", sets: 4, reps: "4", link: "" },
+            { id: 709, group: "Halterofilia & Técnica Explosiva", title: "Cargada y Envión Completo (Clean & Jerk)", cat: "Potencia", sets: 5, reps: "2", link: "" },
+            { id: 710, group: "Halterofilia & Técnica Explosiva", title: "Cargada de Potencia (Power Clean)", cat: "Potencia", sets: 4, reps: "3", link: "" },
+            { id: 711, group: "Halterofilia & Técnica Explosiva", title: "Envión en Tijera (Split Jerk)", cat: "Potencia", sets: 4, reps: "2", link: "" },
+            { id: 712, group: "Halterofilia & Técnica Explosiva", title: "Push Press explosivo con impulso de cadera", cat: "Potencia", sets: 4, reps: "5", link: "" },
+            { id: 713, group: "Halterofilia & Técnica Explosiva", title: "Clean Pull desde bloques (Tirón pesado para fuerza explosiva)", cat: "Fuerza", sets: 4, reps: "3", link: "" },
+            { id: 714, group: "Halterofilia & Técnica Explosiva", title: "Sentadilla sobre la cabeza (Overhead Squat - OHS)", cat: "Potencia", sets: 4, reps: "5", link: "" },
+
+            // MOVILIDAD & ACTIVACIÓN CON VIDEOS RECOMENDADOS
+            { id: 901, group: "Protocolos de Movilidad & Activación", title: "Movilidad de Tren Superior para Halterofilia (Chad Vaughn)", cat: "Movilidad", sets: 3, reps: "10-12", link: "https://www.youtube.com/watch?v=3R4N3j9vJ5g" },
+            { id: 902, group: "Protocolos de Movilidad & Activación", title: "Despertar y Activación de Glúteos (Rutina de Fortalecimiento)", cat: "Movilidad", sets: 3, reps: "15", link: "https://www.youtube.com/watch?v=0_u0z_0_0_0" },
+            { id: 903, group: "Protocolos de Movilidad & Activación", title: "Los Mejores Ejercicios de Glúteo Según la Ciencia", cat: "Hipertrofia", sets: 4, reps: "10-12", link: "https://www.youtube.com/watch?v=0_u0z_0_0_1" },
+            { id: 904, group: "Protocolos de Movilidad & Activación", title: "Los 3 Ejercicios de Core para Todos los Días", cat: "Rehabilitación", sets: 3, reps: "Rutina Diaria", link: "https://www.youtube.com/watch?v=0_u0z_0_0_2" },
+            { id: 905, group: "Protocolos de Movilidad & Activación", title: "Corrección Técnica del McGill Big 3 (Preveniendo Dolor Lumbar)", cat: "Rehabilitación", sets: 3, reps: "10s Hold", link: "https://www.youtube.com/watch?v=0_u0z_0_0_3" },
+
+            // ISQUIOSURALES (FEMORALES) & ESPALDA BAJA
+            { id: 201, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Peso muerto rumano con barra/mancuernas (RDL)", cat: "Fuerza", sets: 4, reps: "8", link: "" },
+            { id: 202, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Curl de piernas sentado en máquina (Seated Leg Curl - Estiramiento Máximo)", cat: "Hipertrofia", sets: 4, reps: "10-12", link: "" },
+            { id: 203, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Curl de piernas acostado (Lying Leg Curl)", cat: "Hipertrofia", sets: 4, reps: "10-12", link: "" },
+            { id: 204, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Curl Nórdico de isquios (Nordic Hamstring Curl)", cat: "Fuerza", sets: 3, reps: "5-8", link: "" },
+            { id: 205, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Subidas a cajón alto con inclinación (Step Ups - Hamstring/Glute Focus)", cat: "Hipertrofia", sets: 3, reps: "10/lado", link: "" },
+            { id: 206, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Buenos Días con barra (Good Mornings)", cat: "Fuerza", sets: 3, reps: "8-10", link: "" },
+            { id: 207, group: "Isquiosurales (Femorales) & Espalda Baja", title: "Peso muerto piernas rígidas (Stiff-Legged Deadlift)", cat: "Fuerza", sets: 4, reps: "6-8", link: "" },
+
+            // GLÚTEOS
+            { id: 251, group: "Glúteos (Cadena Posterior)", title: "Hip Thrust con barra / máquina (Barbell / Machine Hip Thrust)", cat: "Hipertrofia", sets: 4, reps: "10-12", link: "" },
+            { id: 252, group: "Glúteos (Cadena Posterior)", title: "Sentadilla Búlgara inclinada hacia adelante (Bulgarian Split Squat - Glute Focus)", cat: "Hipertrofia", sets: 3, reps: "10/lado", link: "" },
+            { id: 253, group: "Glúteos (Cadena Posterior)", title: "Hiperextensión a 45° con redondeo dorsal (45° Back Extension - Glute Focus)", cat: "Hipertrofia", sets: 3, reps: "12-15", link: "" },
+            { id: 254, group: "Glúteos (Cadena Posterior)", title: "Patada de glúteo en polea baja (Cable Glute Kickback)", cat: "Hipertrofia", sets: 3, reps: "12-15", link: "" },
+            { id: 255, group: "Glúteos (Cadena Posterior)", title: "Abducción de cadera sentada en máquina (Seated Hip Abduction)", cat: "Hipertrofia", sets: 4, reps: "15", link: "" },
+
+            // CUÁDRICEPS & CADERA ANTERIOR
+            { id: 101, group: "Cuádriceps & Cadera Anterior", title: "Empuje de trineo pesado (Sled Push)", cat: "Fuerza", sets: 4, reps: "30m", link: "" },
+            { id: 102, group: "Cuádriceps & Cadera Anterior", title: "Arrastre de trineo hacia atrás (Backward Sled Pull)", cat: "Fuerza", sets: 4, reps: "30m", link: "" },
+            { id: 103, group: "Cuádriceps & Cadera Anterior", title: "Sentadilla trasera barra alta (High bar back squat)", cat: "Fuerza", sets: 4, reps: "6", link: "" },
+            { id: 104, group: "Cuádriceps & Cadera Anterior", title: "Sentadilla frontal con barra (Front squat)", cat: "Fuerza", sets: 4, reps: "5", link: "" },
+            { id: 105, group: "Cuádriceps & Cadera Anterior", title: "Sentadilla en máquina péndulo / Hack (Pendulum / Hack squat)", cat: "Hipertrofia", sets: 4, reps: "8-10", link: "" },
+            { id: 106, group: "Cuádriceps & Cadera Anterior", title: "Sentadilla Sissi (Sissy squat)", cat: "Hipertrofia", sets: 3, reps: "12", link: "" },
+            { id: 107, group: "Cuádriceps & Cadera Anterior", title: "Extensiones de pierna en máquina (Leg extension)", cat: "Hipertrofia", sets: 4, reps: "12-15", link: "" },
+
+            // HOMBROS / DELTOIDES 3D
+            { id: 501, group: "Hombros (Deltoides 3D)", title: "Press militar con barra de pie (Overhead Press)", cat: "Fuerza", sets: 4, reps: "6", link: "" },
+            { id: 502, group: "Hombros (Deltoides 3D)", title: "Press militar con mancuernas sentado (Dumbbell Shoulder Press)", cat: "Hipertrofia", sets: 4, reps: "8-10", link: "" },
+            { id: 503, group: "Hombros (Deltoides 3D)", title: "Elevación lateral en polea (Cable Lateral Raise)", cat: "Hipertrofia", sets: 4, reps: "12-15", link: "" },
+            { id: 504, group: "Hombros (Deltoides 3D)", title: "Aperturas inversas en Pec Deck (Reverse Pec Deck)", cat: "Hipertrofia", sets: 3, reps: "12-15", link: "" },
+            { id: 505, group: "Hombros (Deltoides 3D)", title: "Jalón a la cara en polea alta (Face Pull)", cat: "Rehabilitación", sets: 3, reps: "15", link: "" },
+
+            // BÍCEPS & ANTEBRAZOS
+            { id: 601, group: "Bíceps & Antebrazos", title: "Curl de bíceps con barra Z / barra recta (Barbell Curl)", cat: "Hipertrofia", sets: 3, reps: "8-10", link: "" },
+            { id: 602, group: "Bíceps & Antebrazos", title: "Curl Bayesian en polea (Bayesian Cable Curl)", cat: "Hipertrofia", sets: 3, reps: "12-15", link: "" },
+            { id: 603, group: "Bíceps & Antebrazos", title: "Curl predicador en banco Scott / máquina (Preacher Curl)", cat: "Hipertrofia", sets: 3, reps: "10-12", link: "" },
+            { id: 604, group: "Bíceps & Antebrazos", title: "Curl martillo con mancuernas/polea (Hammer Curl)", cat: "Hipertrofia", sets: 3, reps: "10-12", link: "" },
+
+            // TRÍCEPS
+            { id: 651, group: "Tríceps", title: "Press de banca con agarre cerrado (Close-Grip Bench Press)", cat: "Fuerza", sets: 4, reps: "6-8", link: "" },
+            { id: 652, group: "Tríceps", title: "Press Francés / Rompecabezas con barra Z (Skullcrushers)", cat: "Hipertrofia", sets: 3, reps: "10-12", link: "" },
+            { id: 653, group: "Tríceps", title: "Extensión de tríceps en polea sobre la cabeza (Overhead Cable Extension)", cat: "Hipertrofia", sets: 3, reps: "12-15", link: "" },
+            { id: 654, group: "Tríceps", title: "Empuje de tríceps en polea con cuerda (Rope Pushdown)", cat: "Hipertrofia", sets: 4, reps: "12-15", link: "" },
+
+            // ESPALDA & TIRONES
+            { id: 301, group: "Espalda & Tirones", title: "Dominadas prono / supina (Pull-Ups / Chin-Ups)", cat: "Hipertrofia", sets: 4, reps: "Fallo", link: "" },
+            { id: 302, group: "Espalda & Tirones", title: "Remo apoyado en pecho / Barra T (Chest-Supported Row)", cat: "Hipertrofia", sets: 3, reps: "8-10", link: "" },
+            { id: 303, group: "Espalda & Tirones", title: "Jalón al pecho unilateral / neutro (Lat Pulldown)", cat: "Hipertrofia", sets: 4, reps: "10-12", link: "" },
+            { id: 304, group: "Espalda & Tirones", title: "Remo Gironda sentado (Seated cable row)", cat: "Hipertrofia", sets: 3, reps: "10", link: "" },
+
+            // PECTORAL
+            { id: 401, group: "Pectoral (Pecho)", title: "Press de banca inclinado con barra/mancuerna (Incline bench press)", cat: "Hipertrofia", sets: 4, reps: "8-10", link: "" },
+            { id: 402, group: "Pectoral (Pecho)", title: "Press de banca plano con barra (Flat bench press)", cat: "Fuerza", sets: 4, reps: "6", link: "" },
+            { id: 403, group: "Pectoral (Pecho)", title: "Aperturas en máquina / Pec Deck (Machine pec fly)", cat: "Hipertrofia", sets: 3, reps: "12-15", link: "" }
+        ];
+
+        let catalog = JSON.parse(localStorage.getItem('codice_catalog')) || initialCatalog;
+        let weeklyPlan = JSON.parse(localStorage.getItem('codice_weekly_plan')) || {
+            lunes: [], martes: [], miercoles: [], jueves: [], viernes: [], sabado: [], domingo: []
+        };
+
+        let currentCat = 'all';
+        let selectedExForModal = null;
+
+        function saveToLocalStorage() {
+            localStorage.setItem('codice_catalog', JSON.stringify(catalog));
+            localStorage.setItem('codice_weekly_plan', JSON.stringify(weeklyPlan));
+        }
+
+        function renderCatalog() {
+            const container = document.getElementById('catalogContainer');
+            container.innerHTML = '';
+
+            const filtered = currentCat === 'all' ? catalog : catalog.filter(e => e.cat === currentCat);
+
+            const groups = {};
+            filtered.forEach(ex => {
+                if (!groups[ex.group]) groups[ex.group] = [];
+                groups[ex.group].push(ex);
+            });
+
+            for (const groupName in groups) {
+                const groupTitle = document.createElement('div');
+                groupTitle.className = 'muscle-group-title';
+                groupTitle.innerText = groupName;
+                container.appendChild(groupTitle);
+
+                const grid = document.createElement('div');
+                grid.className = 'exercise-grid';
+
+                groups[groupName].forEach(ex => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+
+                    card.innerHTML = `
+                        <button class="menu-btn" onclick="openMenuModal(${ex.id})">⋮</button>
+                        <div>
+                            <div class="card-header-bar">
+                                <span class="badge" style="${getBadgeStyle(ex.cat)}">${ex.cat}</span>
+                            </div>
+                            <div class="card-title" title="${ex.title}">${ex.title}</div>
+                            ${ex.link ? `<a href="${ex.link}" target="_blank" class="video-link">▶ Video Tutorial</a>` : ''}
+                        </div>
+                        <div class="card-inputs">
+                            <div class="input-box">
+                                <label>Sets</label>
+                                <input type="number" value="${ex.sets}" onchange="updateExParam(${ex.id}, 'sets', this.value)">
+                            </div>
+                            <div class="input-box">
+                                <label>Reps/Tiempo</label>
+                                <input type="text" value="${ex.reps}" onchange="updateExParam(${ex.id}, 'reps', this.value)">
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+
+                container.appendChild(grid);
+            }
+
+            renderWeeklyPlan();
+        }
+
+        function getBadgeStyle(cat) {
+            if(cat === 'Cardio') return 'background:rgba(236, 72, 153, 0.15); color:#ec4899; border:1px solid rgba(236, 72, 153, 0.4);';
+            if(cat === 'Fuerza') return 'background:rgba(255, 123, 0, 0.15); color:#ff7b00; border:1px solid rgba(255, 123, 0, 0.4);';
+            if(cat === 'Hipertrofia') return 'background:rgba(0, 210, 255, 0.15); color:#00d2ff; border:1px solid rgba(0, 210, 255, 0.4);';
+            if(cat === 'Potencia') return 'background:rgba(245, 158, 11, 0.15); color:#f59e0b; border:1px solid rgba(245, 158, 11, 0.4);';
+            if(cat === 'Movilidad') return 'background:rgba(16, 185, 129, 0.15); color:#10b981; border:1px solid rgba(16, 185, 129, 0.4);';
+            if(cat === 'Rehabilitación') return 'background:rgba(168, 85, 247, 0.15); color:#a855f7; border:1px solid rgba(168, 85, 247, 0.4);';
+            return '';
+        }
+
+        function updateExParam(id, param, value) {
+            const ex = catalog.find(i => i.id === id);
+            if (ex) {
+                ex[param] = value;
+                saveToLocalStorage();
+            }
+        }
+
+        function renderWeeklyPlan() {
+            const days = ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo'];
+            days.forEach(day => {
+                const zone = document.getElementById(day);
+                zone.innerHTML = '';
+                weeklyPlan[day].forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'split-card';
+                    card.innerHTML = `
+                        <div class="split-card-header">
+                            <div>
+                                <div class="split-card-title">${item.title}</div>
+                                <div class="split-card-meta">${item.sets} sets × ${item.reps}</div>
+                            </div>
+                            <button class="btn-remove" onclick="removeWeeklyItem('${day}', ${index})">×</button>
+                        </div>
+                        ${item.note ? `<div class="postit-note">📌 ${item.note}</div>` : ''}
+                        <button class="btn-add-note" onclick="editNote('${day}', ${index})">${item.note ? '✏️ Editar nota' : '📌 + Agregar Post-it'}</button>
+                    `;
+                    zone.appendChild(card);
+                });
+            });
+        }
+
+        function editNote(day, index) {
+            const currentNote = weeklyPlan[day][index].note || '';
+            const newNote = prompt("Anota pesos, RPE, tempo o notas de ejecución:", currentNote);
+            if (newNote !== null) {
+                weeklyPlan[day][index].note = newNote.trim();
+                saveToLocalStorage();
+                renderWeeklyPlan();
+            }
+        }
+
+        function removeWeeklyItem(day, index) {
+            weeklyPlan[day].splice(index, 1);
+            saveToLocalStorage();
+            renderWeeklyPlan();
+        }
+
+        function openMenuModal(exId) {
+            selectedExForModal = catalog.find(i => i.id === exId);
+            if (selectedExForModal) {
+                document.getElementById('modalExTitle').innerText = `Opciones para "${selectedExForModal.title}":`;
+                document.getElementById('menuModal').style.display = 'flex';
+            }
+        }
+
+        function closeMenuModal() {
+            document.getElementById('menuModal').style.display = 'none';
+            selectedExForModal = null;
+        }
+
+        function addSelectedToDay(dayId) {
+            if (selectedExForModal) {
+                weeklyPlan[dayId].push({
+                    title: selectedExForModal.title,
+                    sets: selectedExForModal.sets,
+                    reps: selectedExForModal.reps,
+                    note: ""
+                });
+                saveToLocalStorage();
+                renderWeeklyPlan();
+                closeMenuModal();
+            }
+        }
+
+        function deleteExerciseFromCatalog() {
+            if (selectedExForModal) {
+                if (confirm(`¿Eliminar "${selectedExForModal.title}" del catálogo permanentemente?`)) {
+                    catalog = catalog.filter(i => i.id !== selectedExForModal.id);
+                    saveToLocalStorage();
+                    renderCatalog();
+                    closeMenuModal();
+                }
+            }
+        }
+
+        /* MANEJO DEL MODAL DE CREACIÓN DE EJERCICIOS */
+        function populateGroupSelect() {
+            const select = document.getElementById('newGroupSelect');
+            select.innerHTML = '';
+
+            // Obtener todos los grupos musculares únicos existentes
+            const existingGroups = [...new Set(catalog.map(ex => ex.group))];
+
+            existingGroups.forEach(group => {
+                const option = document.createElement('option');
+                option.value = group;
+                option.innerText = group;
+                select.appendChild(option);
+            });
+
+            // Opción para crear un nuevo grupo si el usuario lo desea
+            const newOption = document.createElement('option');
+            newOption.value = "__NEW__";
+            newOption.innerText = "➕ Crear Nuevo Grupo Muscular...";
+            select.appendChild(newOption);
+
+            toggleCustomGroupInput(select.value);
+        }
+
+        function toggleCustomGroupInput(value) {
+            const customContainer = document.getElementById('customGroupContainer');
+            if (value === "__NEW__") {
+                customContainer.style.display = 'flex';
+            } else {
+                customContainer.style.display = 'none';
+            }
+        }
+
+        function openCreateModal() {
+            populateGroupSelect();
+            document.getElementById('createModal').style.display = 'flex';
+        }
+
+        function closeCreateModal() {
+            document.getElementById('createModal').style.display = 'none';
+        }
+
+        function saveNewExercise() {
+            const title = document.getElementById('newTitle').value;
+            const groupSelectValue = document.getElementById('newGroupSelect').value;
+            const customGroupValue = document.getElementById('newCustomGroup').value;
+            const cat = document.getElementById('newCat').value;
+            const sets = document.getElementById('newSets').value;
+            const reps = document.getElementById('newReps').value;
+
+            if (!title) {
+                alert("Ingresa el nombre del ejercicio");
+                return;
+            }
+
+            let finalGroup = groupSelectValue;
+            if (groupSelectValue === "__NEW__") {
+                if (!customGroupValue.trim()) {
+                    alert("Por favor escribe el nombre del nuevo grupo muscular");
+                    return;
+                }
+                finalGroup = customGroupValue.trim();
+            }
+
+            catalog.unshift({
+                id: Date.now(),
+                group: finalGroup,
+                title: title,
+                cat: cat,
+                sets: sets || 3,
+                reps: reps || "10-12",
+                link: ""
+            });
+
+            saveToLocalStorage();
+            renderCatalog();
+            closeCreateModal();
+
+            // Limpiar inputs
+            document.getElementById('newTitle').value = '';
+            document.getElementById('newCustomGroup').value = '';
+        }
+
+        function filterCat(cat) {
+            currentCat = cat;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderCatalog();
+        }
+
+        renderCatalog();
+    </script>
+</body>
+</html>
